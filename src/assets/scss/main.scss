@@ -1,0 +1,12 @@
+@import './variables.scss';
+@import './fonts.scss';
+
+*{
+    background-color: $bgc-w;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.container {
+    width: 1100px;
+    margin: 20px 15vw;
+}

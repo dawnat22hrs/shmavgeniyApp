@@ -1,6 +1,5 @@
-npm
 <script setup lang="ts">
-    import { ref } from 'vue';
+    import { onMounted, ref } from 'vue';
     import { RouterLink } from 'vue-router';
     import colorIzhToEnd from '../colorIzhevskToEnd.json'
     import colorMscToIzh from '../colorMoscowToIzhevsk.json'
@@ -17,7 +16,7 @@ npm
 
     //methods
     // Get position of the device, that using your site
-    const getCurrentPosition = () => {
+    onMounted(() => {
 
         const success = (position) => {
             if(currDistanse.value == distance(position.coords.latitude, position.coords.longitude, latitudEnd,longitudeEnd)){
@@ -47,7 +46,7 @@ npm
 
         navigator.geolocation.watchPosition(success, error, {maximumAge: 0, timeout: 300, enableHighAccuracy: true})
         console.log('watchPosition.call')
-    }
+    })
 
     // Get from degrees to radians
     const convertDeg2rad = (num: number) => {
@@ -67,11 +66,6 @@ npm
         const d = 2 * radius_earth * Math.asin(Math.sqrt(Math.sin((lat_2R - lat_1R) / 2) ** 2 + Math.cos(lat_1R) * Math.cos(lat_2R) * Math.sin((lon_2R - lon_1R) / 2) ** 2));
 
         return Math.round(d*1000)/1000; // round to 3 number after comma
-    }
-
-    const getColor = () => {
-        getCurrentPosition();
-        return color.value
     }
 
     const getColorBar =(coef: number) => {
@@ -99,15 +93,13 @@ npm
 </script>
 
 <template>
-    <main class="main" :style="{background: getColor()}">
+    <main class="main" :style="{background: color}">
         <nav class="navbar" :style="{background: getColorBar(10)}">
     <div class="container flex" :style="{background: getColorBar(10)}">
         <RouterLink to="/" class="rl"><h2 class="link-title" :style="{background: getColorBar(10)}">Shmavgeniy</h2></RouterLink>
     </div>
 </nav>
-        <!-- <p class="distance__map-block" :style="{background: getColor()}">{{ currDistanse }} km</p> -->
-        <p class="distance__map-block">{{ currDistanse }} km</p>
-        <!--<p v-for="colors in colorsLevel"> {{ colors }}</p>-->
+        <p class="distance__map-block" :style="{background: color}">{{ currDistanse }} km</p>
     </main>
 </template> 
 

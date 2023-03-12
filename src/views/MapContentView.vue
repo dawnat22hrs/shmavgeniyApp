@@ -1,102 +1,123 @@
+npm
 <script setup lang="ts">
-import { ref } from 'vue';
-import { RouterLink } from 'vue-router';
-import colorData from '../colorData.json'
+    import { ref } from 'vue';
+    import { RouterLink } from 'vue-router';
+    import colorIzhToEnd from '../colorIzhevskToEnd.json'
+    import colorMscToIzh from '../colorMoscowToIzhevsk.json'
 
-//state
-const colorsLevel = ref(colorData) // array all color
-const currDistanse = ref(0)
-const distanseIzhToMsc = 969; // maybe other value
-const latitudEnd = 56.8498;
-const longitudeEnd = 53.2045;
-const color = ref('')
+    //state
+    const colorsLevelMsc = ref(colorMscToIzh) // array all color
+    const colorsLevelIzh = ref(colorIzhToEnd)
+    const radiusIzh = 20;
+    const currDistanse = ref(0)
+    const distanseIzhToMsc = 969; // maybe other value
+    const latitudEnd = 56.8498;
+    const longitudeEnd = 53.2045;
+    const color = ref('')
 
-//methods
-// Get position of the device, that using your site
-const getCurrentPosition = () => {
+    //methods
+    // Get position of the device, that using your site
+    const getCurrentPosition = () => {
 
-    const success = (position) => {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        // our method
-            
-        // get json file 
-            
-        // deserilaze file
-        //JSON.parse()
+        const success = (position) => {
+            if(currDistanse.value == distance(position.coords.latitude, position.coords.longitude, latitudEnd,longitudeEnd)){
+                console.log('watchPosition.return')
+                return;
+            }
 
-        currDistanse.value = distance(latitude, longitude, latitudEnd,longitudeEnd);
-        const indexColor = Math.round(currDistanse.value / (distanseIzhToMsc / colorsLevel.value.length))
-        color.value = colorsLevel.value[indexColor]['color'] as string; 
-        console.log(colorsLevel.value[indexColor]['id'])
+            currDistanse.value = distance(position.coords.latitude, position.coords.longitude, latitudEnd,longitudeEnd);
+            if (currDistanse.value > radiusIzh){
+                const indexColor = Math.round(currDistanse.value / (distanseIzhToMsc / colorsLevelMsc.value.length))
+                color.value = colorsLevelMsc.value[indexColor].color; 
+                console.log(indexColor)
+            } 
+            else {
+                console.log(currDistanse.value)
+                const indexColor = Math.round(currDistanse.value / (radiusIzh / colorsLevelIzh.value.length))
+                color.value = colorsLevelIzh.value[indexColor].color; 
+                console.log(indexColor)
+            }
+            console.log('watchPosition.suc')
+        }
+
+        const error = () => {
+            //TODO: if don't get position
+            console.log('watchPosition.error') 
+        }
+
+        navigator.geolocation.watchPosition(success, error, {maximumAge: 0, timeout: 300, enableHighAccuracy: true})
+        console.log('watchPosition.call')
     }
 
-    const error = () => {
-        //TODO: if don't get position
-        console.log('Не могу найти тебя') 
+    // Get from degrees to radians
+    const convertDeg2rad = (num: number) => {
+        return num * Math.PI / 180;
     }
 
-    navigator.geolocation.getCurrentPosition(success, error)
-}
+    // Get distanse between two coordinates to kilometers.
+    const distance = (lat_2:number, lon_2:number, lat_1: number, lon_1:number) => {
 
-// Get from degrees to radians
-const convertDeg2rad = (num: number) => {
-    return num * Math.PI / 180;
-}
+        const radius_earth = 6371.1; // Радиус Земли
 
-// Get distanse between two coordinates to kilometers.
-const distance = (lat_1: number, lon_1:number, lat_2:number, lon_2:number) => {
+        const lat_1R = convertDeg2rad(lat_1),
+            lon_1R = convertDeg2rad(lon_1),
+            lat_2R = convertDeg2rad(lat_2),
+            lon_2R = convertDeg2rad(lon_2);
 
-    const radius_earth = 6371; // Радиус Земли
+        const d = 2 * radius_earth * Math.asin(Math.sqrt(Math.sin((lat_2R - lat_1R) / 2) ** 2 + Math.cos(lat_1R) * Math.cos(lat_2R) * Math.sin((lon_2R - lon_1R) / 2) ** 2));
 
-    const lat_1R = convertDeg2rad(lat_1),
-        lon_1R = convertDeg2rad(lon_1),
-        lat_2R = convertDeg2rad(lat_2),
-        lon_2R = convertDeg2rad(lon_2);
+        return Math.round(d*1000)/1000; // round to 3 number after comma
+    }
 
-    const d = 2 * radius_earth * Math.asin(Math.sqrt(Math.sin((lat_2R - lat_1R) / 2) ** 2 + Math.cos(lat_1R) * Math.cos(lat_2R) * Math.sin((lon_2R - lon_1R) / 2) ** 2));
+    const getColor = () => {
+        getCurrentPosition();
+        return color.value
+    }
 
-    return Math.round(d*10000)/10000; // round to 2 number after comma
-}
+    const getColorBar =(coef: number) => {
+        let rgb = hexToRgb(color.value);
+        rgb = {r: Number(rgb?.r) -coef, g: Number(rgb?.g)-coef, b: Number(rgb?.b)-coef,}
+        return rgbToHex(rgb.r,rgb.g,rgb.b);
+    }
 
-const getColorByPosition = (): string => {
-    getCurrentPosition()  
-    return ""
-}
+    function rgbToHex(r, g, b) {
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+    function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+    }
 
-const getColor = () => {
-    getColorByPosition();
-    return color.value
-}
+    function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+    } : null;
+    }
 </script>
 
 <template>
-<main class="main" :style="{background: getColor()}">
-        <RouterLink to="/" class="rl"><h2 class="link-title" :style="{background: getColor()}">Shmavgeniy</h2></RouterLink>
-        <p class="distance__map-block" :style="{background: getColor()}">{{ currDistanse }} km</p>
+    <main class="main" :style="{background: getColor()}">
+        <nav class="navbar" :style="{background: getColorBar(10)}">
+    <div class="container flex" :style="{background: getColorBar(10)}">
+        <RouterLink to="/" class="rl"><h2 class="link-title" :style="{background: getColorBar(10)}">Shmavgeniy</h2></RouterLink>
+    </div>
+</nav>
+        <!-- <p class="distance__map-block" :style="{background: getColor()}">{{ currDistanse }} km</p> -->
+        <p class="distance__map-block">{{ currDistanse }} km</p>
         <!--<p v-for="colors in colorsLevel"> {{ colors }}</p>-->
-</main>
+    </main>
 </template> 
 
 <style scoped lang="scss">
 .main {
     width: 100vw;
     height: 100vh;
-
-    .rl {
-        text-decoration: none;
-        display: block;
-        width: 184px;
-    }
-    .link-title {
-        font-family: 'Montserrat', sans-serif;
-        font-style: normal;
-        font-weight: 200;
-        font-size: 5vh;
-        color: #000;
-        width: 184px;
-        padding: 20px 0 0 15vw;
-    }
+.navbar {
+    border-bottom: 1px solid #000;
+}
 
     .distance__map-block {
         font-family: 'Montserrat', sans-serif;

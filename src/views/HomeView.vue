@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import NavigationMenu from '../components/NavigationMenu.vue';
-
 import { RouterLink } from 'vue-router';
 
 
@@ -13,7 +12,7 @@ import { RouterLink } from 'vue-router';
     <div class="hero-content">
         <h2 class="title">Welcome bastard</h2>
         <div class="btn__hero-content">
-            <RouterLink to="/map"><button class="btn">Get started</button></RouterLink>
+            <RouterLink to="/map"><button class="btn" onclick="getCurrentPosition()">Get started</button></RouterLink>
         </div>
     </div>
 </main>

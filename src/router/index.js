@@ -15,7 +15,6 @@ const router = createRouter({
       name: 'mapContent',
       component: MapContentView
     },
-
   ]
 })
 

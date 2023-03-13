@@ -3,76 +3,44 @@ import { RouterLink } from 'vue-router';
 </script>
 
 <template>
-    <modal>
-        <div class="hystmodal" id="myModal">
-            <div class="hystmodal__window">
-                <button data-hystclose class="hystmodal__close">Close</button>
-                <h7 class="title">Разреши в настроках использовать твою геопозицию в браузере.</h7>
-            </div>
+    <div id="myModal" class="modal">
+        <RouterLink to="/"><span class="close">&times;</span></RouterLink>
+        <div class="modal-content">
+            <p class="text">Не получается определить <br> геопозицию, <i style="background: #E8E8E8; font-family: cursive;">Bastard</i>.
+                <br><br>Включи по братски<br>Настройки&#9658;Конфиденциальность и безопасность&#9658;Служба геолокации&#9658;Сайты Safari</p>
         </div>
-    </modal>
+    </div>
 </template>
 
-<style  lang="scss">
-@import '../assets/scss/fonts.scss';
-.title {
-        font-size: 5vh;
-        margin: 0 auto;
-        color: #000;
+<style scoped lang="scss">
+    .modal {
+        width: 70vw;
+        height: 25vh;
+        background: #E8E8E8;
+        margin: 200px auto;
+        border-radius: 10px;
+        padding-top: 10px;
+        border: 1px solid gray;
+        box-shadow: 0px 5px 10px 2px rgba(34, 60, 80, 0.2);
+
+        .close {
+            border-radius: 10px;
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            margin-right: 10px;
+            margin-top: -5px;
+            background: #E8E8E8;
+        }
+
+        .text {
+            font-weight: 400;
+            text-align: center;
+            padding: 15% 5px 0 5px;
+            background: #E8E8E8;
+            line-height: 1.2;
+            word-break: break-all;
+        }
     }
-    
-.hystmodal__wrap {
-    flex-shrink: 0;
-    flex-grow: 0;
-    width: 100%;
-    min-height: 100%;
-    margin: auto;
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
-    justify-content: center;
-}
-
-.hystmodal__window {
-    margin: 50px 0;
-    flex-shrink: 0;
-    flex-grow: 0;
-    background: #fff;
-    width: 600px;
-    max-width: 100%;
-    overflow: visible;
-    transition: transform 0.2s ease 0s, opacity 0.2s ease 0s;
-    transform: scale(0.9);
-    opacity: 0;
-}
-
-.hystmodal--active {
-    visibility: visible;
-}
-
-.hystmodal--active .hystmodal__window {
-    transform: scale(1);
-    opacity: 1;
-}
-.hystmodal__shadow{
-    position: fixed;
-    border:none;
-    display: block;
-    width: 100%;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 98;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    background-color: black;
-}
-/* активная подложка */
-.hystmodal__shadow--show{
-    pointer-events: auto;
-    opacity: 0.6;
-}
 </style>

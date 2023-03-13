@@ -3,19 +3,20 @@ import { onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import colorIzhToEnd from '../colorIzhevskToEnd.json'
 import colorMscToIzh from '../colorMoscowToIzhevsk.json'
-import {HystModal} from '../components/modal.js'
-import modalErrorLocation from '../components/ErrorLocationModal.vue';
+import { HystModal } from '../components/modal.js'
+import modalErrorWindow from '../components/ErrorLocationModal.vue';
 
 //state
 const colorsLevelMsc = ref(colorMscToIzh) // array all color
 const colorsLevelIzh = ref(colorIzhToEnd)
+const modalError = ref(false)
 const radiusIzh = 20;
 const currDistanse = ref(0)
 const distanseIzhToMsc = 969; // maybe other value
 const latitudEnd = 56.8498;
 const longitudeEnd = 53.2045;
 const color = ref('')
-let myModal = new HystModal({
+const modalWindow = new HystModal({
             linkAttributeName: 'data-hystmodal',
         });
 
@@ -24,6 +25,7 @@ let myModal = new HystModal({
 onMounted(() => {
 
     const success = (position) => {
+        modalError.value = false;
         if (currDistanse.value == distance(position.coords.latitude, position.coords.longitude, latitudEnd, longitudeEnd)) {
             console.log('watchPosition.return')
             return;
@@ -42,9 +44,9 @@ onMounted(() => {
     }
 
     const error = () => {
-        
-        //TODO: if don't get position
         console.log('watchPosition.error')
+        if(currDistanse.value < 0.001)
+            modalError.value = true
     }
 
     navigator.geolocation.watchPosition(success, error, { maximumAge: 0, timeout: 300, enableHighAccuracy: true })
@@ -97,7 +99,6 @@ function hexToRgb(hex) {
 </script>
 
 <template>
-    <modalErrorLocation/>
     <main class="main" :style="{ background: color }">
         <nav class="navbar" :style="{ background: getColorBar(10) }">
             <div class="container flex" :style="{ background: getColorBar(10) }">
@@ -106,7 +107,10 @@ function hexToRgb(hex) {
                 </RouterLink>
             </div>
         </nav>
-        <p class="distance__map-block" :style="{ background: color }">{{ currDistanse >= 1 ? currDistanse : currDistanse * 1000}} {{ currDistanse >= 1 ? 'km' : 'm' }}</p>
+        <modalErrorWindow v-if="modalError"/>
+            <div v-if="!modalError" class="rectangle" :style="{ background: getColorBar(10) }">
+                <p class="distance__map-block" :style="{ background: getColorBar(10) }">{{ currDistanse >= 1 ? currDistanse + ' km' : currDistanse * 1000 + ' m'}}</p>
+            </div>
     </main>
 </template> 
 
@@ -119,13 +123,23 @@ function hexToRgb(hex) {
         border-bottom: 1px solid #000;
     }
 
-    .distance__map-block {
-        font-family: 'Montserrat', sans-serif;
-        font-style: normal;
-        font-weight: 300;
-        font-size: 15px;
-        position: absolute;
-        left: 70%;
-        top: 80%;
+    .rectangle {
+        width: 300px;
+        height: 300px;
+        border: 1px solid black;
+        border-radius: 50%;
+        box-shadow: 0px 5px 10px 2px rgba(34, 60, 80, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 100px auto;
+
+        .distance__map-block {
+            font-family: 'Montserrat', sans-serif;
+            font-style: normal;
+            font-weight: 300;
+            font-size: 50px;
+            position: relative;
+        }
     }
 }</style>

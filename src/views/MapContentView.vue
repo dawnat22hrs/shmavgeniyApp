@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import colorIzhToEnd from '../colorIzhevskToEnd.json'
 import colorMscToIzh from '../colorMoscowToIzhevsk.json'
-import { HystModal } from '../components/modal.js'
 import modalErrorWindow from '../components/ErrorLocationModal.vue';
 
 //state
@@ -11,46 +10,38 @@ const colorsLevelMsc = ref(colorMscToIzh) // array all color
 const colorsLevelIzh = ref(colorIzhToEnd)
 const modalError = ref(false)
 const radiusIzh = 20;
-const currDistanse = ref(0)
+const currDistanse = ref(-1)
 const distanseIzhToMsc = 969; // maybe other value
 const latitudEnd = 56.8498;
 const longitudeEnd = 53.2045;
 const color = ref('')
-const modalWindow = new HystModal({
-            linkAttributeName: 'data-hystmodal',
-        });
 
 //methods
 // Get position of the device, that using your site
-onMounted(() => {
-
+onMounted(async() => {
     const success = (position) => {
         modalError.value = false;
         if (currDistanse.value == distance(position.coords.latitude, position.coords.longitude, latitudEnd, longitudeEnd)) {
-            console.log('watchPosition.return')
             return;
         }
 
         currDistanse.value = distance(position.coords.latitude, position.coords.longitude, latitudEnd, longitudeEnd);
         if (currDistanse.value > radiusIzh) {
             const indexColor = Math.round(currDistanse.value / (distanseIzhToMsc / colorsLevelMsc.value.length))
-            color.value = colorsLevelMsc.value[indexColor].color;
+            color.value = colorsLevelMsc.value[indexColor];
         }
         else {
             const indexColor = Math.round(currDistanse.value / (radiusIzh / colorsLevelIzh.value.length))
-            color.value = colorsLevelIzh.value[indexColor].color;
+            color.value = colorsLevelIzh.value[indexColor];
         }
-        console.log('watchPosition.suc')
     }
 
     const error = () => {
-        console.log('watchPosition.error')
-        if(currDistanse.value < 0.001)
+        if (currDistanse.value == -1)
             modalError.value = true
     }
 
     navigator.geolocation.watchPosition(success, error, { maximumAge: 0, timeout: 300, enableHighAccuracy: true })
-    console.log('watchPosition.call')
 })
 
 // Get from degrees to radians
@@ -75,7 +66,10 @@ const distance = (lat_2: number, lon_2: number, lat_1: number, lon_1: number) =>
 
 const getColorBar = (coef: number) => {
     let rgb = hexToRgb(color.value);
-    rgb = { r: Number(rgb?.r) - coef, g: Number(rgb?.g) - coef, b: Number(rgb?.b) - coef, }
+    let r = Number(rgb?.r) <= coef ? Number(rgb?.r) : Number(rgb?.r) - coef
+    let g = Number(rgb?.g) <= coef ? Number(rgb?.g) : Number(rgb?.g) - coef
+    let b = Number(rgb?.b) <= coef ? Number(rgb?.b) : Number(rgb?.b) - coef
+    rgb = { r: r, g: g, b: b, }
     return rgbToHex(rgb.r, rgb.g, rgb.b);
 }
 
@@ -100,17 +94,17 @@ function hexToRgb(hex) {
 
 <template>
     <main class="main" :style="{ background: color }">
-        <nav class="navbar" :style="{ background: getColorBar(10) }">
-            <div class="container flex" :style="{ background: getColorBar(10) }">
+        <nav class="navbar" :style="{ background: getColorBar(20) }">
+            <div class="container flex" :style="{ background: getColorBar(20) }">
                 <RouterLink to="/" class="rl">
-                    <h2 class="link-title" :style="{ background: getColorBar(10) }">Shmavgeniy</h2>
+                    <h2 class="link-title" :style="{ background: getColorBar(20) }">Shmavgeniy</h2>
                 </RouterLink>
             </div>
         </nav>
-        <modalErrorWindow v-if="modalError"/>
-            <div v-if="!modalError" class="rectangle" :style="{ background: getColorBar(10) }">
-                <p class="distance__map-block" :style="{ background: getColorBar(10) }">{{ currDistanse >= 1 ? currDistanse + ' km' : currDistanse * 1000 + ' m'}}</p>
-            </div>
+        <modalErrorWindow v-if="modalError" />
+        <div v-if="!modalError" class="rectangle" :style="{ background: getColorBar(20) }">
+            <p class="distance__map-block" :style="{ background: getColorBar(20) }">{{ currDistanse >= 1 ? currDistanse + 'km' : currDistanse==0? '	&#129313;': currDistanse * 1000 + ' m'}}</p>
+        </div>
     </main>
 </template> 
 
@@ -142,4 +136,5 @@ function hexToRgb(hex) {
             position: relative;
         }
     }
-}</style>
+}
+</style>

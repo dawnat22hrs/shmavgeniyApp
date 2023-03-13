@@ -72,7 +72,6 @@ const getColorByPosition = () => {
 }
 
 const getColor = () => {
-    getColorByPosition();
     return color.value
 }
 

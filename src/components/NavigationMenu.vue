@@ -25,7 +25,7 @@ import { RouterLink } from 'vue-router';
         text-decoration: none;
     }
     .link-title {
-        font-size: 5vh;
+        font-size: 3vh;
         margin: 0 auto;
         color: #000;
     }

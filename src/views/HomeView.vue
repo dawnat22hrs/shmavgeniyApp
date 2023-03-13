@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import NavigationMenu from '../components/NavigationMenu.vue';
 import { RouterLink } from 'vue-router';
-
-
-
 </script>
 
 <template>
@@ -25,14 +22,15 @@ import { RouterLink } from 'vue-router';
     justify-content: center;
     flex-direction: column;
     align-items: center;
-    margin-top: 100px;
+    margin-top: 50%;//100px;
 
     .title {
       font-family: 'Montserrat', sans-serif;
       font-style: normal;
       font-weight: 200;
-      font-size: 10vh;
+      font-size: 400%;//10vh;
       letter-spacing: 10px;
+      text-align: center;
     }
 
     .btn__hero-content {
